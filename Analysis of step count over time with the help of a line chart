@@ -1,0 +1,35 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# Load the log data into a pandas DataFrame
+log_file_path = 'C:/Users/PRACHI PANDEY/Documents/Natwest/HealthApp_2k.log_structured.csv'
+log_data = pd.read_csv(log_file_path)
+
+# Extract step count from the 'Content' column using a regular expression
+log_data['StepCount'] = log_data['Content'].str.extract(r'getTodayTotalDetailSteps = (\d+)##', expand=False)
+
+# Convert 'StepCount' column to numeric, replacing non-numeric values with NaN
+log_data['StepCount'] = pd.to_numeric(log_data['StepCount'], errors='coerce')
+
+# Extract date and time from the 'Time' column
+log_data['DateTime'] = pd.to_datetime(log_data['Time'], format='%Y%m%d-%H:%M:%S:%f', errors='coerce')
+
+# Extract date from the 'DateTime' column
+log_data['Date'] = log_data['DateTime'].dt.date
+
+# Group by date and sum the step counts for each day
+daily_step_count = log_data.groupby('Date')['StepCount'].sum()
+
+# Filter out NaN values and days with zero step count
+daily_step_count = daily_step_count.dropna()[daily_step_count > 0]
+
+# Create a line chart for daily step count
+plt.figure(figsize=(14, 6))
+plt.plot(daily_step_count.index, daily_step_count.values, marker='o', linestyle='-', color='blue', linewidth=2)
+plt.title('Daily Step Count Over Time')
+plt.xlabel('Date')
+plt.ylabel('Total Step Count')
+plt.grid(True)
+plt.xticks(rotation=45, ha='right')  # Improve x-axis date rotation
+plt.tight_layout()
+plt.show()
