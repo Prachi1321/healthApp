@@ -1,0 +1,22 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# Load the log data into a pandas DataFrame
+log_file_path = 'C:/Users/PRACHI PANDEY/Documents/Natwest/HealthApp_2k.log_structured.csv'
+log_data = pd.read_csv(log_file_path)
+
+# Display the first few rows of the DataFrame
+print(log_data.head())
+
+# Example 1: Count occurrences of each Component
+component_counts = log_data['Component'].value_counts()
+print("\nComponent Counts:")
+print(component_counts)
+
+# Example 2: Plot a bar chart of Component occurrences
+plt.figure(figsize=(10, 6))
+component_counts.plot(kind='bar', color='skyblue')
+plt.title('Component Occurrences')
+plt.xlabel('Component')
+plt.ylabel('Count')
+plt.show()
