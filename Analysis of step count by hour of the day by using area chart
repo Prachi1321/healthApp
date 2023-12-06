@@ -1,0 +1,39 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# Load the log data into a pandas DataFrame
+log_file_path = 'C:/Users/PRACHI PANDEY/Documents/Natwest/HealthApp_2k.log_structured.csv'
+log_data = pd.read_csv(log_file_path)
+
+# Extract step count from the 'Content' column using a regular expression
+log_data['StepCount'] = log_data['Content'].str.extract(r'getTodayTotalDetailSteps = (\d+)##', expand=False)
+
+# Convert 'StepCount' column to numeric, replacing non-numeric values with NaN
+log_data['StepCount'] = pd.to_numeric(log_data['StepCount'], errors='coerce')
+
+# Extract date and time from the 'Time' column
+log_data['DateTime'] = pd.to_datetime(log_data['Time'], format='%Y%m%d-%H:%M:%S:%f', errors='coerce')
+
+# Extract hour from the 'DateTime' column
+log_data['Hour'] = log_data['DateTime'].dt.hour
+
+# Group by hour and sum the step counts for each hour
+hourly_step_count = log_data.groupby('Hour')['StepCount'].sum()
+
+# Filter out NaN values and hours with zero step count
+hourly_step_count = hourly_step_count.dropna()[hourly_step_count > 0]
+
+# Enhancements
+plt.figure(figsize=(15, 5))  # Adjust the figure size
+
+# Create an area chart for step count by hour of the day
+plt.fill_between(hourly_step_count.index, 0, hourly_step_count.values, color='green', alpha=0.6, label='Step Count')
+
+plt.title('Step Count by Hour of the Day (Area Chart)')
+plt.xlabel('Hour of the Day')
+plt.ylabel('Total Step Count')
+plt.grid(axis='y', linestyle='--', alpha=0.7)  # Add grid lines on the y-axis for better readability
+plt.xticks(range(24), labels=[f"{hour}:00" for hour in range(24)], rotation=45, ha='right')  # Increase rotation and adjust alignment
+plt.legend()
+plt.tight_layout()
+plt.show()
