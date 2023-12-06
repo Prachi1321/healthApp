@@ -1,0 +1,37 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# Load the log data into a pandas DataFrame
+log_file_path = 'C:/Users/PRACHI PANDEY/Documents/Natwest/HealthApp_2k.log_structured.csv'
+log_data = pd.read_csv(log_file_path)
+
+# Extract Calories and Altitude from the 'Content' column using regular expressions
+log_data['Calories'] = log_data['Content'].str.extract(r'calculateCaloriesWithCache totalCalories=(\d+)')
+log_data['Altitude'] = log_data['Content'].str.extract(r'calculateAltitudeWithCache totalAltitude=(\d+)')
+
+# Convert Calories and Altitude columns to numeric
+log_data[['Calories', 'Altitude']] = log_data[['Calories', 'Altitude']].apply(pd.to_numeric, errors='coerce')
+
+# Convert 'Time' column to datetime with the specified format
+log_data['Time'] = pd.to_datetime(log_data['Time'], format='%Y%m%d-%H:%M:%S:%f')
+
+# Plot a line chart for Calories and Altitude over time
+plt.figure(figsize=(14, 6))  # Increase figure size
+
+# Plot Calories
+plt.plot(log_data['Time'], log_data['Calories'], label='Calories', marker='o', linestyle='-', color='blue', linewidth=2)
+
+# Plot Altitude
+plt.plot(log_data['Time'], log_data['Altitude'], label='Altitude', marker='o', linestyle='-', color='green', linewidth=2)
+
+plt.title('Calories and Altitude Over Time')
+plt.xlabel('Time')
+plt.ylabel('Value')
+plt.legend()
+
+# Improve x-axis date formatting for better readability
+plt.gca().xaxis.set_major_formatter(plt.matplotlib.dates.DateFormatter('%Y-%m-%d %H:%M:%S'))
+
+plt.xticks(rotation=45)  # Adjust rotation angle of x-axis labels
+plt.tight_layout()
+plt.show()
